@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$roomId": {
+        ".read": "auth != null && $roomId.matches(/^[A-Z0-9]{6}$/)",
+        ".write": "auth != null && $roomId.matches(/^[A-Z0-9]{6}$/) && newData.hasChildren(['players','turn','finished','created'])",
+        ".validate": "newData.child('turn').isNumber() && newData.child('turn').val() >= 0 && newData.child('turn').val() < 4 && newData.child('finished').isBoolean()"
+      }
+    }
+  }
+}

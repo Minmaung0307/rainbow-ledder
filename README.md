@@ -1,0 +1,1 @@
+Rainbow Ladders V25 — Dice moved from center of board to a large roll control at the bottom of the right rail. New game and fullscreen controls stay visible above settings. Existing game rules and Firebase unchanged. Run npm install && npm run build before deploying.
