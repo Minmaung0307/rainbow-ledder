@@ -448,3 +448,75 @@ header{display:none!important}
 .zone-right .game-shortcuts{order:-1!important;}
 @media(max-width:850px){.zone-right .side-dice{position:static!important;bottom:auto!important;top:auto!important;margin-top:0!important;width:100%!important;}.zone-right #sideRoll{height:76px!important;min-height:76px!important;max-height:76px!important;font-size:46px!important;}}
 @media(max-width:480px){.zone-right #sideRoll{height:68px!important;min-height:68px!important;max-height:68px!important;font-size:40px!important;}}
+
+/* V27: stable, GPU-composited player pieces on iPad/iPhone */
+#tokens .token{will-change:left,top;backface-visibility:hidden;-webkit-backface-visibility:hidden;contain:layout style;isolation:isolate}
+#tokens .token .hero-art{display:block;opacity:1;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0)}
+
+/* V28: deliberate, smooth, matching movement for human, computer and remote.
+   Animate position only: never resize/recreate the board or hero image. */
+#tokens .token{transition:left 450ms cubic-bezier(.22,.68,.22,1),top 450ms cubic-bezier(.22,.68,.22,1)!important;will-change:left,top;transform:translate(-50%,-50%) translateZ(0);-webkit-transform:translate(-50%,-50%) translateZ(0);}
+#tokens .token.token-entering{transition:none!important;}
+#tokens .token .hero-art{image-rendering:auto;-webkit-transform:translateZ(0);transform:translateZ(0);}
+@media(prefers-reduced-motion:reduce){#tokens .token{transition-duration:0ms!important}}
+
+/* V29 Design Studio */
+.studio-fields{display:grid;gap:6px}.studio-fields label{font-size:12px;font-weight:700}.studio-fields select{margin:4px 0 6px;padding:8px;font-size:12px}.studio-pair{display:grid;grid-template-columns:1fr 1fr;gap:6px}.studio-toggle{display:flex;align-items:center;gap:8px}.studio-toggle input{width:17px;height:17px;accent-color:#7554d9}.studio-fields small{font-size:10px;color:#68748b;line-height:1.4}.studio-fields button{padding:8px;font-size:12px}.cell.studio-center{display:flex;align-items:center;justify-content:center}.cell.studio-center>span{position:static!important;transform:none!important}.cell.studio-center .goal-mark,.cell.studio-center .treasure-mark{position:absolute;left:4px;bottom:3px} :root[data-palette="night"] .cell{color:#f5f7ff!important}:root[data-palette="night"] .cell span{color:#f5f7ff!important}
+:root[data-world="ocean"]{background:#e6f7fc}:root[data-world="ocean"] h1{color:#267caa}:root[data-world="ocean"] .primary{background:#2185ae}:root[data-world="ocean"] .board{border-color:#cceef7}
+:root[data-world="castle"]{background:#f6efff}:root[data-world="castle"] h1{color:#8257ba}:root[data-world="castle"] .primary{background:#895bc3}:root[data-world="castle"] .board{border-color:#e7d9fa}
+
+/* V30: Six genuinely different art directions on the SAME readable, 50/100-square game. */
+.world-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:7px 0 9px}
+.world-gallery button{min-width:0;border:2px solid transparent;border-radius:10px;background:#f6f5fb;padding:4px 2px;color:#49536a;font-size:10px;line-height:1.2;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.world-gallery button.active{border-color:#7959db;background:#f0ebff;box-shadow:0 0 0 1px #7959db33}
+.world-gallery button:focus-visible{outline:3px solid #e3a42d;outline-offset:2px}
+.world-tile{display:grid;place-items:center;width:100%;height:38px;font-size:24px;border-radius:8px}
+.world-tile-rainbow{background:linear-gradient(120deg,#ffe6e6,#fff3bd,#dcf5e5,#dce8ff)}
+.world-tile-candy{background:repeating-linear-gradient(45deg,#ffc9e3 0 10px,#fff1a7 10px 20px,#c9f6ec 20px 30px)}
+.world-tile-jungle{background:linear-gradient(125deg,#315b38,#8fbe6d)}
+.world-tile-space{background:radial-gradient(circle at 70% 25%,#9a70e8,#1b244f 70%)}
+.world-tile-ocean{background:repeating-linear-gradient(160deg,#99e8ef 0 12px,#4ab6d7 12px 24px)}
+.world-tile-castle{background:linear-gradient(130deg,#f6d8ff,#9c86da)}
+/* All world changes are paint-only: board dimensions, numbering and paths remain stable. */
+:root[data-world] .board{isolation:isolate;transition:background-color .28s ease,border-color .28s ease,box-shadow .28s ease}
+:root[data-world] .cell{position:relative;overflow:hidden;isolation:isolate;transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease}
+:root[data-world] .cell>span{position:relative;z-index:2;font-weight:800;text-shadow:0 1px 2px #ffffff99}
+:root[data-world] .paths{z-index:4;pointer-events:none}
+:root[data-world] #tokens{z-index:8}
+:root[data-world] .world-decor{pointer-events:none;opacity:.55}
+/* Rainbow: flat pastel mosaic, clean fine lines. */
+:root[data-world="rainbow"] .board{background:#fff;border:4px solid #d9bfff;box-shadow:0 8px 25px #9871c733}
+:root[data-world="rainbow"] .cell{border:1px solid #ffffffcc;border-radius:0}
+/* Candy: glossy rounded sweets, sprinkle accents. */
+:root[data-world="candy"] .board{background:#ffd5e7;border:5px solid #f5a3ca;border-radius:25px;box-shadow:0 8px 0 #e59ab8,0 13px 28px #ed91b04a}
+:root[data-world="candy"] .cells{gap:2px;padding:2px;background:#ffe5ef}
+:root[data-world="candy"] .cell{border:1px solid #ffffffa8;border-radius:12px;box-shadow:inset 0 4px 0 #ffffff99,inset 0 -3px 0 #e982a224}
+:root[data-world="candy"] .cell::after{content:'';position:absolute;right:8%;bottom:12%;width:22%;height:8%;border-radius:100%;background:#ffffff65;transform:rotate(-35deg)}
+/* Jungle: organic green leaves and wood-board frame. */
+:root[data-world="jungle"] .board{background:#436f43;border:8px ridge #986b3b;border-radius:10px;box-shadow:0 12px 25px #294a2c55}
+:root[data-world="jungle"] .cell{border:1px dashed #6b956b80;border-radius:3px;background-image:linear-gradient(145deg,#ffffff00 55%,#43895322 56%,#ffffff00 80%)!important}
+:root[data-world="jungle"] .cell::after{content:'❧';position:absolute;right:5%;bottom:0;color:#34783d33;font-size:clamp(8px,1.9vw,24px)}
+/* Space: dark neon star chart, crisp legible numbers. */
+:root[data-world="space"] .board{background:#101a3c;border:5px solid #6c6fcb;border-radius:17px;box-shadow:0 0 0 3px #a6a2ed44,0 0 30px #7064e577}
+:root[data-world="space"] .cell{background-image:radial-gradient(circle at 75% 28%,#ffffffb0 0 1px,transparent 2px),radial-gradient(circle at 22% 72%,#e0ceff90 0 1px,transparent 2px),linear-gradient(145deg,#25396c,#1c2853)!important;border:1px solid #7c91dc52;border-radius:1px;box-shadow:inset 0 0 12px #6c77e01a}
+:root[data-world="space"] .cell:nth-child(5n){background-image:radial-gradient(circle at 50% 60%,#bc8ef044,transparent 60%),linear-gradient(145deg,#3e306b,#222650)!important}
+:root[data-world="space"] .cell>span{color:#fff5b7!important;text-shadow:0 1px 4px #05091d!important}
+:root[data-world="space"] .goal-mark,:root[data-world="space"] .treasure-mark{filter:drop-shadow(0 0 3px #fff)}
+/* Ocean: flowing water tiles with bubble patterns. */
+:root[data-world="ocean"] .board{background:#0e92b7;border:7px double #c3f4fa;border-radius:18px;box-shadow:0 9px 24px #187eab55}
+:root[data-world="ocean"] .cell{border:1px solid #f1ffff7a;border-radius:0 0 14px 14px;background-image:radial-gradient(circle at 80% 70%,#ffffff8a 0 2px,transparent 3px),radial-gradient(circle at 65% 30%,#ffffff88 0 1px,transparent 2px),linear-gradient(160deg,#bff3ef,#75d3e7)!important}
+:root[data-world="ocean"] .cell:nth-child(3n){background-image:radial-gradient(circle at 65% 60%,#ffffffaa 0 2px,transparent 3px),linear-gradient(160deg,#c3f1ff,#8acbe7)!important}
+:root[data-world="ocean"] .cell>span{color:#135576!important}
+/* Castle: stone blocks and royal gold, distinct from every other board. */
+:root[data-world="castle"] .board{background:#766a9d;border:9px ridge #d3b777;border-radius:5px;box-shadow:0 7px 0 #b18b52,0 13px 25px #584d8266}
+:root[data-world="castle"] .cell{border:1px solid #9c88bb;border-radius:0;background-image:linear-gradient(90deg,#ffffff44 1px,transparent 1px),linear-gradient(0deg,#ffffff44 1px,transparent 1px),linear-gradient(140deg,#eee3ff,#d7c4ef)!important;background-size:50% 50%,50% 50%,auto;box-shadow:inset 0 3px 0 #fff8}
+:root[data-world="castle"] .cell:nth-child(2n){background-image:linear-gradient(90deg,#ffffff33 1px,transparent 1px),linear-gradient(135deg,#f9e7d4,#e6d3f5)!important}
+:root[data-world="castle"] .cell>span{color:#534077!important}
+/* Different path material for each world, without moving path endpoints. */
+:root[data-world="candy"] .paths .ladder-art{filter:drop-shadow(0 1px 1px #f174a4)}
+:root[data-world="jungle"] .paths .rope-art{filter:drop-shadow(0 1px 1px #276b39)}
+:root[data-world="space"] .paths .ladder-art,:root[data-world="space"] .paths .rope-art{filter:drop-shadow(0 0 2px #f5ecff)}
+:root[data-world="ocean"] .paths .rope-art{filter:drop-shadow(0 0 2px #b9ffff)}
+:root[data-world="castle"] .paths .ladder-art{filter:drop-shadow(0 1px 1px #7c5b39)}
+@media(max-width:850px){.world-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}.world-tile{height:33px;font-size:21px}}
+@media(prefers-reduced-motion:reduce){:root[data-world] .board,:root[data-world] .cell{transition:none}}

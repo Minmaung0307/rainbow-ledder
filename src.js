@@ -10,10 +10,21 @@ const WORLDS={
  rainbow:{name:'Rainbow Land',icon:'🌈',description:'🌈 အရောင်စုံကမ္ဘာမှာ ပျော်ပျော်ကစားမယ်!',palette:['#fff5dc','#eaf4fa','#eaf6e8','#fff0ed','#f3effb'],decor:['✨','🌈','⭐','☁️'],rope:['#e879a5','#8b78d6','#27a6b2','#e5a04b','#5aaf80','#dc7c71','#638bd4'],ladder:'#a46a39'},
  candy:{name:'Candy World',icon:'🍭',description:'🍬 သကြားလုံးကမ္ဘာထဲမှာ ရတနာတွေ ရှာကြမယ်!',palette:['#ffe8f3','#fff2ce','#e7f9f5','#f0e9ff','#ffecdf'],decor:['🍬','🍭','🧁','🍩'],rope:['#f18fb4','#b58be8','#f5aa67','#6ecab8'],ladder:'#bd789a'},
  jungle:{name:'Jungle Adventure',icon:'🌿',description:'🦋 တောအုပ်စိမ်းစိမ်းထဲမှာ စွန့်စားကြမယ်!',palette:['#e4f5d9','#f3f8df','#e0f3eb','#f9f0d8','#e7f5e6'],decor:['🌺','🦋','🍃','🌼'],rope:['#48a88a','#e6a35b','#73b3a3','#bb8fc9'],ladder:'#8e784b'},
+ ocean:{name:'Ocean World',icon:'🐠',description:'🐠 ရေအောက်ကမ္ဘာမှာ စွန့်စားမယ်!',palette:['#d9f5f4','#e5f7ff','#cceff7','#e6f9e9','#fff3d8'],decor:['🐚','🫧','🐠','🪸'],rope:['#168fa6','#2ab6b0','#657ad0','#f28d9c'],ladder:'#277eaa'},
+ castle:{name:'Magic Castle',icon:'🏰',description:'🏰 မှော်ရဲတိုက်နဲ့ တိမ်တိုက်ကမ္ဘာ!',palette:['#f0e5ff','#ffe8f5','#fff2d7','#e6e9ff','#e8f7f2'],decor:['✨','🏰','🌟','☁️'],rope:['#a17ce0','#ef8db4','#71a9d7','#e0ac53'],ladder:'#9871c4'},
  space:{name:'Space World',icon:'🚀',description:'🪐 ကြယ်တွေကြားမှာ အာကာသခရီးထွက်ကြမယ်!',palette:['#e5eaff','#e8e2ff','#e2f2ff','#f1e8ff','#e7efff'],decor:['⭐','🪐','✨','🌙'],rope:['#7b9cef','#bd8be9','#6ac6d6','#f0a6d6'],ladder:'#7d83bc'}
 };
 let currentWorld='rainbow';
-function setWorld(key){if(!WORLDS[key])return;currentWorld=key;document.documentElement.dataset.world=key;$('world').value=key;$('worldDescription').textContent=WORLDS[key].description;try{localStorage.setItem('rainbow-world',key)}catch{}board();sound('reward');showToast(`🌍 ${WORLDS[key].name} သို့ ပြောင်းလိုက်ပါပြီ!`);}
+const STUDIO_KEY='rainbow-ladders-studio-v1';
+const STUDIO_PALETTES={original:null,sunset:['#ffe1d5','#ffefcd','#f9d9e5','#fff4e5','#f3e6fa'],mint:['#d8f6eb','#e3f8ff','#e9f5d8','#f6f8e8','#e0f2f2'],night:['#29375e','#384b76','#273e65','#425477','#344469'],mono:['#f4f5f7','#e8ebf0','#dce3eb','#f1f3f7','#e2e7ee']};
+const studio={palette:'original',ladder:'classic',rope:'wiggle',ladderColor:'',ropeColor:'',numbers:'corner',decor:true};
+try{Object.assign(studio,JSON.parse(localStorage.getItem(STUDIO_KEY)||'{}'))}catch{}
+function studioSave(){try{localStorage.setItem(STUDIO_KEY,JSON.stringify(studio))}catch{}}
+function studioPalette(){return STUDIO_PALETTES[studio.palette]||WORLDS[currentWorld].palette}
+function studioRefresh(){studioSave();document.documentElement.dataset.palette=studio.palette;board();}
+function initStudio(){const fields=['palette','ladder','rope','ladderColor','ropeColor','numbers','decor'];for(const key of fields){const el=$('studio-'+key);if(!el)continue;if(key==='decor')el.checked=studio.decor;else el.value=studio[key];el.addEventListener('change',()=>{studio[key]=key==='decor'?el.checked:el.value;studioRefresh()})}const reset=$('studio-reset');if(reset)reset.onclick=()=>{Object.assign(studio,{palette:'original',ladder:'classic',rope:'wiggle',ladderColor:'',ropeColor:'',numbers:'corner',decor:true});for(const key of fields){const el=$('studio-'+key);if(el){if(key==='decor')el.checked=studio.decor;else el.value=studio[key]}}studioRefresh()};}
+
+function setWorld(key){if(!WORLDS[key])return;currentWorld=key;document.documentElement.dataset.world=key;document.querySelectorAll('[data-world-choice]').forEach(b=>{const active=b.dataset.worldChoice===key;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});$('world').value=key;$('worldDescription').textContent=WORLDS[key].description;try{localStorage.setItem('rainbow-world',key)}catch{}board();sound('reward');showToast(`🌍 ${WORLDS[key].name} သို့ ပြောင်းလိုက်ပါပြီ!`);}
 function renderWorldDecor(){const el=$('worldDecor');if(!el)return;const symbols=WORLDS[currentWorld].decor;el.innerHTML=Array.from({length:9},(_,i)=>`<span style="--x:${(i*37+13)%91+4}%;--y:${(i*23+17)%83+8}%;--delay:${(i%5)*-.6}s">${symbols[i%symbols.length]}</span>`).join('')}
 const $=id=>document.getElementById(id);const sleep=t=>new Promise(r=>setTimeout(r,t));
 let audio;function sound(kind){if(state.muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const seq={reward:[[659,.12],[880,.13],[1175,.24]],tick:[[520,.045]],roll:[[260,.045],[370,.045],[290,.055]],up:[[392,.12],[494,.12],[587,.12],[784,.22]],down:[[740,.12],[554,.14],[415,.17],[294,.22]],win:[[523,.13],[659,.13],[784,.13],[1046,.25],[1318,.38]]}[kind]||[];let offset=0;for(const [freq,dur] of seq){const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.setValueAtTime(freq,audio.currentTime+offset);g.gain.setValueAtTime(.0001,audio.currentTime+offset);g.gain.exponentialRampToValueAtTime(.18,audio.currentTime+offset+.012);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+offset+dur);o.connect(g).connect(audio.destination);o.start(audio.currentTime+offset);o.stop(audio.currentTime+offset+dur+.01);offset+=dur*.78}}catch{}}
@@ -21,23 +32,23 @@ function square(n){const row=Math.floor((n-1)/10),col=(n-1)%10;const rows=advent
 // V4: open-spaced wooden ladders and playful, fine wiggly ropes.
 function ladderSVG(a,b){
  const p=square(a),q=square(b),dx=q.x-p.x,dy=q.y-p.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;
- const halfWidth=1.12;
+ const halfWidth=studio.ladder==='wide'?1.65:studio.ladder==='slim'?.78:1.12;
  const point=(t,side)=>`${(p.x+dx*t+nx*halfWidth*side).toFixed(2)} ${(p.y+dy*t+ny*halfWidth*side).toFixed(2)}`;
- const steps=Math.max(4,Math.round(len/3.2));
+ const steps=Math.max(4,Math.round(len/(studio.ladder==='wide'?4.4:3.2)));
  let rungs='';
  for(let j=1;j<steps;j++){
   const t=j/steps;
-  rungs+=`<path d="M ${point(t,-1)} L ${point(t,1)}" fill="none" stroke="#b37b47" stroke-width=".32" stroke-linecap="round"/>`;
+  rungs+=`<path d="M ${point(t,-1)} L ${point(t,1)}" fill="none" stroke="${studio.ladderColor||WORLDS[currentWorld].ladder}" stroke-width=".32" stroke-linecap="round"/>`;
  }
- return `<g class="ladder-art"><path d="M ${point(0,-1)} L ${point(1,-1)} M ${point(0,1)} L ${point(1,1)}" fill="none" stroke="${WORLDS[currentWorld].ladder}" stroke-width=".43" stroke-linecap="round"/>${rungs}</g>`;
+ return `<g class="ladder-art"><path d="M ${point(0,-1)} L ${point(1,-1)} M ${point(0,1)} L ${point(1,1)}" fill="none" stroke="${studio.ladderColor||WORLDS[currentWorld].ladder}" stroke-width="${studio.ladder==='slim'?'.32':'.43'}" stroke-linecap="round"/>${rungs}</g>`;
 }
 function ropeSVG(a,b,i){
  const p=square(a),q=square(b),dx=q.x-p.x,dy=q.y-p.y,len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;
  const ropeColors=WORLDS[currentWorld].rope;
- const color=ropeColors[i%ropeColors.length];
+ const color=studio.ropeColor||ropeColors[i%ropeColors.length];
  // The wave tapers at both ends; multiple alternating bends create a worm-like silhouette.
- const waves=len<22?1.4:len<38?2:2.65;
- const amplitude=Math.min(2.65,Math.max(1.15,len*.065));
+ const waves=studio.rope==='spiral'?4.1:studio.rope==='gentle'?.8:len<22?1.4:len<38?2:2.65;
+ const amplitude=studio.rope==='gentle'?.65:studio.rope==='spiral'?Math.min(3.2,len*.08):Math.min(2.65,Math.max(1.15,len*.065));
  const samples=32,pts=[];
  for(let j=0;j<=samples;j++){
   const t=j/samples;
@@ -51,17 +62,46 @@ function ropeSVG(a,b,i){
   d+=` Q ${pts[j-1].x.toFixed(2)} ${pts[j-1].y.toFixed(2)} ${mid.x.toFixed(2)} ${mid.y.toFixed(2)}`;
  }
  const last=pts[pts.length-1];d+=` L ${last.x.toFixed(2)} ${last.y.toFixed(2)}`;
- return `<g class="rope-art"><path d="${d}" fill="none" stroke="${color}" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#fffaf4" stroke-width=".11" stroke-dasharray=".65 1.25" stroke-linecap="round" opacity=".85"/></g>`;
+ return `<g class="rope-art"><path d="${d}" fill="none" stroke="${color}" stroke-width="${studio.rope==='ribbon'?1.15:.55}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#fffaf4" stroke-width=".11" stroke-dasharray=".65 1.25" stroke-linecap="round" opacity=".85"/></g>`;
 }
 function board(){
- const quick=adventure.goal===50&&state.mode!=='remote',palette=WORLDS[currentWorld].palette,cells=[];
- for(let r=(quick?4:9);r>=0;r--){const nums=Array.from({length:10},(_,c)=>r*10+(r%2===0?c+1:10-c));for(const n of nums)cells.push(`<div class="cell ${n===adventure.goal?'goal':''}" style="background:${palette[(n+Math.floor(n/10)*2)%5]}"><span>${n}</span>${adventure.cardSquares.has(n)&&adventure.variant!=='classic'?'<i class="treasure-mark">🎁</i>':''}${n===adventure.goal?'<i class="goal-mark">🏆</i>':''}</div>`)}
+ const quick=adventure.goal===50&&state.mode!=='remote',palette=studioPalette(),cells=[];
+ for(let r=(quick?4:9);r>=0;r--){const nums=Array.from({length:10},(_,c)=>r*10+(r%2===0?c+1:10-c));for(const n of nums)cells.push(`<div class="cell ${studio.numbers==='center'?'studio-center':''} ${n===adventure.goal?'goal':''}" style="background:${palette[(n+Math.floor(n/10)*2)%5]}"><span>${n}</span>${adventure.cardSquares.has(n)&&adventure.variant!=='classic'?'<i class="treasure-mark">🎁</i>':''}${n===adventure.goal?'<i class="goal-mark">🏆</i>':''}</div>`)}
  $('cells').innerHTML=cells.join('');$('cells').style.gridTemplateRows=`repeat(${quick?5:10},1fr)`;
  $('board').classList.toggle('quick-board',quick);$('paths').setAttribute('viewBox',quick?'0 0 100 50':'0 0 100 100');
  $('paths').innerHTML=`${Object.entries(slides).filter(([a,b])=>+a<=adventure.goal&&b<=adventure.goal).map(([a,b],i)=>ropeSVG(+a,b,i)).join('')}${Object.entries(ladders).filter(([a,b])=>+a<=adventure.goal&&b<=adventure.goal).map(([a,b])=>ladderSVG(+a,b)).join('')}`;
- renderTokens();renderWorldDecor();
+ renderTokens();if(studio.decor)renderWorldDecor();else $('worldDecor').innerHTML='';
 }
-function renderTokens(){const b=$('tokens');b.innerHTML=state.players.map((p,i)=>{if(!p.pos)return '';const pt=square(p.pos);const offset=(i-(state.players.length-1)/2)*2.35;return `<div class="token" style="left:${pt.x+offset}%;top:${(pt.y+offset)*(adventure.goal===50&&state.mode!=='remote'?2:1)}%;background:${colors[i]};z-index:${i+3}" title="${p.name}">${heroImg(adventure.avatars[i])}</div>`}).join('')}
+// Keep token nodes and decoded hero images mounted during every animation frame.
+// Rebuilding innerHTML on each step caused visible image flashes on iOS Safari.
+function renderTokens(){
+ const layer=$('tokens');if(!layer)return;
+ const active=new Set();
+ state.players.forEach((p,i)=>{
+  const id=`player-token-${i}`;
+  let token=document.getElementById(id);
+  if(!p.pos){token?.remove();return;}
+  active.add(id);
+  if(!token){
+   token=document.createElement('div');token.id=id;token.className='token';
+   token.style.background=colors[i];token.style.zIndex=String(i+3);
+   token.title=p.name;
+   const img=document.createElement('img');img.className='hero-art';img.alt=heroFiles[adventure.avatars[i]]||'hero';img.draggable=false;img.decoding='sync';
+   token.appendChild(img);layer.appendChild(token);token.classList.add('token-entering');requestAnimationFrame(()=>requestAnimationFrame(()=>token.classList.remove('token-entering')));
+  }
+  const name=heroFiles[adventure.avatars[i]]||'bunny';
+  const img=token.firstElementChild;const src=`/hero-${name}.png`;
+  if(img.getAttribute('src')!==src){img.src=src;img.alt=name;}
+  const pt=square(p.pos);const offset=(i-(state.players.length-1)/2)*2.35;
+  token.style.left=`${pt.x+offset}%`;
+  token.style.top=`${(pt.y+offset)*(adventure.goal===50&&state.mode!=='remote'?2:1)}%`;
+ });
+ for(const token of layer.children)if(!active.has(token.id))token.remove();
+}
+function preloadHeroes(){
+ Object.values(heroFiles).forEach(name=>{const img=new Image();img.decoding='async';img.src=`/hero-${name}.png`;if(img.decode)img.decode().catch(()=>{});});
+}
+
 const HERO_OPTIONS=[['🐰', 'bunny', 'Bunny'], ['🐼', 'panda', 'Panda'], ['🦊', 'fox', 'Fox'], ['🦖', 'dino', 'Dino'], ['🐱', 'cat', 'Kitty'], ['🐶', 'puppy', 'Puppy'], ['🐻', 'bear', 'Bear'], ['🐨', 'koala', 'Koala'], ['🐸', 'frog', 'Froggy'], ['🐯', 'tiger', 'Tiger'], ['🦁', 'lion', 'Lion'], ['🐵', 'monkey', 'Monkey'], ['🐧', 'penguin', 'Penguin'], ['🐘', 'elephant', 'Elephant'], ['🦄', 'unicorn', 'Unicorn'], ['🐮', 'cow', 'Cow'], ['🐷', 'pig', 'Piggy'], ['🐙', 'octopus', 'Octo'], ['🐢', 'turtle', 'Turtle'], ['🐝', 'bee', 'Buzzy']];
 let heroEditing=0;let heroLocked=false;
 function renderHeroPicker(){
@@ -75,7 +115,7 @@ function renderHeroPicker(){
 function chooseHero(emoji){if(heroLocked||!heroFiles[emoji])return;const i=state.mode==='remote'?state.players.findIndex(p=>p.uid===state.uid):heroEditing;if(i<0)return;adventure.avatars[i]=emoji;
  if(state.mode==='remote'&&state.room){runTransaction(roomRef(state.room),room=>{if(!room||room.roll!=null)return;const idx=room.players?.findIndex(p=>p.uid===state.uid);if(idx<0)return;room.players[idx].avatar=emoji;return room}).catch(console.warn)}
  renderHeroPicker();update();}
-function update(){renderTokens();$('players').innerHTML=state.players.map((p,i)=>`<div class="player ${state.turn===i?'active':''}"><span class="dot" style="background:${colors[i]}"></span><b>${heroImg(adventure.avatars[i])} ${escapeHtml(p.name)}</b><small class="player-prizes"><span title="Stars">⭐ <strong>${adventure.stars[i]||0}</strong></span><span title="Shield available">🛡️ <strong>+${adventure.cards[i]?.shield||0}</strong></span><span title="Rocket available">🚀 <strong>+${adventure.cards[i]?.rocket||0}</strong></span><span title="Position">📍 ${p.pos||'0'}</span></small></div>`).join('');$('turn').textContent=state.finished?'🏆 '+state.players[state.turn]?.name+' wins!':`${state.players[state.turn]?.name||'Player'} ရဲ့အလှည့်`;$('roll').disabled=state.rolling||state.finished||!state.players.length||(state.mode==='remote'&&state.players[state.turn]?.uid!==state.uid);$('quickRoll').disabled=$('roll').disabled;$('roll').textContent=state.rolling?'🎲 Rolling…':'🎲 အံစာတုံးခေါက်မယ်';$('quickRoll').textContent=$('roll').textContent;$('quickTurn').textContent=$('turn').textContent;$('roomLabel').textContent=state.room?'Room: '+state.room:'';renderPowerCards();renderRewards();$('treasurePanel').hidden=adventure.variant!=='treasure'||state.mode==='remote';$('adventureInfo').textContent=state.mode==='remote'?'🌐 Remote Classic':(adventure.variant==='treasure'?'🎁 Treasure Adventure':adventure.goal===50?'⚡ Quick Race':'🌈 Classic Race')+' · Goal '+(state.mode==='remote'?100:adventure.goal)}
+function update(){renderTokens();$('players').innerHTML=state.players.map((p,i)=>`<div class="player ${state.turn===i?'active':''}"><span class="dot" style="background:${colors[i]}"></span><b>${heroImg(adventure.avatars[i])} ${escapeHtml(p.name)}</b><small class="player-prizes"><span title="Collected Stars (score)">⭐ <strong>+${adventure.stars[i]||0}</strong></span><span title="Shield available">🛡️ <strong>+${adventure.cards[i]?.shield||0}</strong></span><span title="Rocket available">🚀 <strong>+${adventure.cards[i]?.rocket||0}</strong></span><span title="Position">📍 ${p.pos||'0'}</span></small></div>`).join('');$('turn').textContent=state.finished?'🏆 '+state.players[state.turn]?.name+' wins!':`${state.players[state.turn]?.name||'Player'} ရဲ့အလှည့်`;$('roll').disabled=state.rolling||state.finished||!state.players.length||(state.mode==='remote'&&state.players[state.turn]?.uid!==state.uid);$('quickRoll').disabled=$('roll').disabled;$('roll').textContent=state.rolling?'🎲 Rolling…':'🎲 အံစာတုံးခေါက်မယ်';$('quickRoll').textContent=$('roll').textContent;$('quickTurn').textContent=$('turn').textContent;$('roomLabel').textContent=state.room?'Room: '+state.room:'';renderPowerCards();renderRewards();$('treasurePanel').hidden=adventure.variant!=='treasure'||state.mode==='remote';$('adventureInfo').textContent=state.mode==='remote'?'🌐 Remote Classic':(adventure.variant==='treasure'?'🎁 Treasure Adventure':adventure.goal===50?'⚡ Quick Race':'🌈 Classic Race')+' · Goal '+(state.mode==='remote'?100:adventure.goal)}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function setup(mode='local',count=2){heroLocked=false;heroEditing=0;adventure.stars=[0,0,0,0];adventure.history=[];adventure.used=Array.from({length:4},()=>({shield:0,rocket:0}));$('victory').classList.remove('show');adventure.shields=[0,0,0,0];adventure.cards=Array.from({length:4},()=>({shield:0,rocket:0}));adventure.claimed=Array.from({length:4},()=>new Set());state.mode=mode;state.room=null;state.players=Array.from({length:count},(_,i)=>({name:mode==='cpu'&&i===1?'🤖 Computer':`Player ${i+1}`,pos:0,uid:i===0?state.uid:null}));if(mode==='cpu')adventure.avatars[1]='🐼';state.turn=0;state.finished=false;state.rolling=false;board();update();renderHeroPicker();$('status').textContent='ကစားဖို့ အသင့်ဖြစ်ပါပြီ!';if(state.mode==='cpu')state.players[1].name='🤖 Computer'}
 function renderPowerCards(){
@@ -97,18 +137,21 @@ function awardCard(i){
 }
 async function animateMove(i,to){
  const p=state.players[i];
- while(p.pos<to){p.pos++;renderTokens();sound('tick');await sleep(135)}
+ while(p.pos<to){p.pos++;renderTokens();sound('tick');await sleep(480)}
  const dest=p.pos===adventure.goal?null:(ladders[p.pos]||slides[p.pos]);
  if(dest&&dest<=adventure.goal){
   if(dest<p.pos&&adventure.cards[i].shield>0){
    adventure.cards[i].shield--;adventure.used[i].shield++;recordReward(i,'🛡️ Shield အသုံးပြုပြီး');sound('up');showToast(`🛡️ ${p.name} Shield က ကြိုးဆင်းခြင်းကို ကာကွယ်ပေးလိုက်ပြီ!`);await sleep(380);
   }else{
-   $('status').textContent=dest>p.pos?'🪜 လှေကားတက်မယ်!':'🪢 ကြိုးဆင်းမယ်!';sound(dest>p.pos?'up':'down');await sleep(300);p.pos=dest;renderTokens();await sleep(240);
+   $('status').textContent=dest>p.pos?'🪜 လှေကားတက်မယ်!':'🪢 ကြိုးဆင်းမယ်!';sound(dest>p.pos?'up':'down');await sleep(220);p.pos=dest;renderTokens();await sleep(1150);
   }
  }
- if(adventure.variant==='treasure'&&adventure.bonusSquares.has(p.pos)&&p.pos<adventure.goal){
-  const reward=secureDie();adventure.stars[i]+=reward<=4?reward:5;
-  recordReward(i,`⭐ ${reward<=4?reward:5} Stars ရရှိ`);sound('reward');showToast(`🌟 ${p.name} +${reward<=4?reward:5} ⭐ Stars!`);
+ // Stars are the third reward: collectible score, not a spendable power card.
+ // One gift square can award stars only once per player per game.
+ if(state.mode!=='remote'&&adventure.bonusSquares.has(p.pos)&&p.pos<adventure.goal&&!adventure.claimed[i].has(p.pos)){
+  const reward=adventure.variant==='treasure'?3:1;
+  adventure.stars[i]+=reward;
+  recordReward(i,`⭐ +${reward} Stars ရရှိ`);sound('reward');showToast(`🌟 ${p.name} +${reward} ⭐ Stars!`);
  }
  awardCard(i);
 }
@@ -143,7 +186,7 @@ async function createRoom(){try{await ensureSignedIn();const code=Math.random().
 async function joinRoom(){try{await ensureSignedIn();const code=prompt('Room Code ထည့်ပါ')?.trim().toUpperCase();if(!code)return;const name=prompt('သင့်နာမည်','Player')?.trim();if(!name)return;const rr=roomRef(code);const result=await runTransaction(rr,room=>{if(!room||room.finished||room.players?.length>=4)return;room.players.push({uid:state.uid,name,pos:0,avatar:adventure.avatars[0]});return room});if(!result.committed)throw Error('Room မရှိပါ၊ ပြည့်နေပါပြီ၊ သို့မဟုတ် ပွဲပြီးသွားပါပြီ။');watchRoom(code)}catch(e){alert(e.message)}}
 function watchRoom(code){adventure.goal=100;adventure.variant='classic';$('variant').value='classic';state.unsubscribe?.();state.mode='remote';state.room=code;state.rolling=false;heroEditing=0;state.unsubscribe=onValue(roomRef(code),snap=>{const room=snap.val();if(!room){$('status').textContent='Room မရှိတော့ပါ';return;}state.players=room.players||[];state.players.forEach((p,i)=>{if(p.avatar&&heroFiles[p.avatar])adventure.avatars[i]=p.avatar});heroLocked=room.roll!=null;renderHeroPicker();state.turn=room.turn||0;const newlyFinished=!!room.finished&&!state.finished;state.finished=!!room.finished;board();update();if(newlyFinished){const winner=state.players.findIndex(p=>p.pos===100);if(winner>=0){showVictory(winner);sound('win');celebrate()}}if(room.roll)$('die').textContent=faces[room.roll];$('status').textContent=state.finished?'🎉 ပွဲပြီးပါပြီ':`Room ${code} • ${state.players.length}/4 players`})}
 async function remoteToss(){heroLocked=true;renderHeroPicker();if(state.rolling||state.players[state.turn]?.uid!==state.uid)return;state.rolling=true;update();const n=secureDie();await diceAnimation(n);try{const result=await runTransaction(roomRef(state.room),room=>{if(!room||room.finished||room.players[room.turn]?.uid!==state.uid)return;const p=room.players[room.turn];p.pos=Math.min(adventure.goal,p.pos+n);if(p.pos<100)p.pos=ladders[p.pos]||slides[p.pos]||p.pos;room.roll=n;if(p.pos===100)room.finished=true;else room.turn=(room.turn+1)%room.players.length;return room});if(!result.committed)$('status').textContent='အလှည့်ပြောင်းသွားပါပြီ။';}catch(e){alert(e.message)}finally{state.rolling=false;update()}}
-$('world').onchange=()=>setWorld($('world').value);$('useRocket').onclick=useRocket;$('victoryClose').onclick=()=>{$('victory').classList.remove('show')};$('victoryAgain').onclick=()=>{setup(state.mode==='remote'?'local':state.mode,state.mode==='cpu'?2:+$('count').value)};$('variant').onchange=()=>{adventure.variant=$('variant').value;adventure.goal=adventure.variant==='quick'?50:100;if(state.mode!=='remote')setup(state.mode,state.mode==='cpu'?2:+$('count').value)};$('heroPlayerTabs').onclick=e=>{const btn=e.target.closest('[data-player]');if(!btn||heroLocked)return;heroEditing=+btn.dataset.player;renderHeroPicker()};$('avatars').onclick=e=>{const btn=e.target.closest('[data-avatar]');if(btn)chooseHero(btn.dataset.avatar)};$('count').onchange=()=>{if(state.mode==='local')setup('local',+$('count').value)};$('roll').onclick=toss;$('quickRoll').onclick=toss;$('local').onclick=()=>{state.unsubscribe?.();state.unsubscribe=null;setup('local',+$('count').value)};$('cpu').onclick=()=>{state.unsubscribe?.();state.unsubscribe=null;setup('cpu',2)};$('create').onclick=createRoom;$('join').onclick=joinRoom;$('mute').onclick=()=>{state.muted=!state.muted;$('mute').textContent=state.muted?'🔇 Sound Off':'🔊 Sound On'};$('copy').onclick=async()=>{if(!state.room)return;await navigator.clipboard.writeText(state.room);$('status').textContent='Room Code copied!'};if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(console.warn));setup();try{setWorld(localStorage.getItem('rainbow-world')||'rainbow')}catch{setWorld('rainbow')}
+$('world').onchange=()=>setWorld($('world').value);document.getElementById('worldGallery')?.addEventListener('click',e=>{const b=e.target.closest('[data-world-choice]');if(b)setWorld(b.dataset.worldChoice)});$('useRocket').onclick=useRocket;$('victoryClose').onclick=()=>{$('victory').classList.remove('show')};$('victoryAgain').onclick=()=>{setup(state.mode==='remote'?'local':state.mode,state.mode==='cpu'?2:+$('count').value)};$('variant').onchange=()=>{adventure.variant=$('variant').value;adventure.goal=adventure.variant==='quick'?50:100;if(state.mode!=='remote')setup(state.mode,state.mode==='cpu'?2:+$('count').value)};$('heroPlayerTabs').onclick=e=>{const btn=e.target.closest('[data-player]');if(!btn||heroLocked)return;heroEditing=+btn.dataset.player;renderHeroPicker()};$('avatars').onclick=e=>{const btn=e.target.closest('[data-avatar]');if(btn)chooseHero(btn.dataset.avatar)};$('count').onchange=()=>{if(state.mode==='local')setup('local',+$('count').value)};$('roll').onclick=toss;$('quickRoll').onclick=toss;$('local').onclick=()=>{state.unsubscribe?.();state.unsubscribe=null;setup('local',+$('count').value)};$('cpu').onclick=()=>{state.unsubscribe?.();state.unsubscribe=null;setup('cpu',2)};$('create').onclick=createRoom;$('join').onclick=joinRoom;$('mute').onclick=()=>{state.muted=!state.muted;$('mute').textContent=state.muted?'🔇 Sound Off':'🔊 Sound On'};$('copy').onclick=async()=>{if(!state.room)return;await navigator.clipboard.writeText(state.room);$('status').textContent='Room Code copied!'};if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(console.warn));preloadHeroes();initStudio();setup();try{setWorld(localStorage.getItem('rainbow-world')||'rainbow')}catch{setWorld('rainbow')}
 
 // V20: one-screen dice control delegates to the existing roll handler.
 const sideRollV20 = document.getElementById('sideRoll');
