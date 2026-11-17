@@ -520,3 +520,99 @@ header{display:none!important}
 :root[data-world="castle"] .paths .ladder-art{filter:drop-shadow(0 1px 1px #7c5b39)}
 @media(max-width:850px){.world-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}.world-tile{height:33px;font-size:21px}}
 @media(prefers-reduced-motion:reduce){:root[data-world] .board,:root[data-world] .cell{transition:none}}
+
+/* V31: compact, board-first tablet and phone play. Panels expand only on demand. */
+@media (max-width:850px){
+ html,body{margin:0;min-height:100%;}
+ #app{padding:5px 7px 8px!important;max-width:100vw}
+ header{display:none!important}
+ .layout,.game-area{display:block!important;min-width:0}
+ .four-side-frame{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;grid-template-areas:'board board' 'left right'!important;gap:5px!important;align-items:start!important}
+ .four-side-frame .board-main{grid-area:board;width:min(100%,calc(100dvh - 178px))!important;margin:auto!important;min-width:0}
+ .four-side-frame .board-main:has(.quick-board){width:min(100%,calc((100dvh - 178px)*2))!important}
+ .four-side-frame .board{border-width:4px!important;border-radius:14px!important}
+ .zone-left,.zone-right{max-height:none!important;overflow:visible!important;padding:5px!important;border-radius:11px!important;min-height:0!important}
+ .zone-left:before{content:'👥'!important;font-size:12px!important;margin:0 0 3px!important}
+ .zone-left .player{display:flex!important;width:100%!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:3px!important;margin:3px 0!important;padding:3px!important;min-height:35px!important}
+ .zone-left .player b{font-size:10px!important;white-space:nowrap;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .zone-left .player .hero-art{width:25px!important;height:25px!important;object-fit:contain}
+ .zone-left .player-prizes{width:auto!important;flex:0 0 auto!important;gap:1px!important;flex-wrap:nowrap!important}
+ .zone-left .player-prizes span{font-size:9px!important;padding:1px!important}
+ .zone-left .rewards-panel{display:none!important}
+ .zone-left .hero-rail{margin:4px 0 0!important}
+ .zone-right{display:flex!important;flex-direction:column!important;gap:3px!important}
+ .zone-right .side-dice{order:-3!important;margin:0!important;padding:0!important}
+ .zone-right #sideRoll{height:44px!important;min-height:44px!important;max-height:44px!important;font-size:28px!important;border-radius:11px!important}
+ .zone-right .game-shortcuts{order:-2!important;display:flex!important;gap:4px!important;margin:0!important}
+ .zone-right .game-shortcuts button{flex:1!important;min-height:28px!important;padding:2px!important;font-size:19px!important}
+ .zone-right .rail-section,.zone-left .rail-section{margin:2px 0!important;padding:5px!important;border-radius:9px!important}
+ .rail-section>summary{font-size:0!important;line-height:1!important;min-height:20px;display:flex!important;align-items:center;justify-content:space-between;cursor:pointer}
+ .mode-rail>summary::before{content:'🌍  🎮';font-size:15px}
+ .studio-rail>summary::before{content:'🎨  🪜';font-size:15px}
+ .network-rail>summary::before{content:'👥  🌐';font-size:15px}
+ .sound-rail>summary::before{content:'🔊  📖';font-size:15px}
+ .hero-rail>summary::before{content:'🎭  🐰';font-size:15px}
+ .rail-section>summary::after{font-size:12px!important;margin-left:auto}
+ .mode-rail:not([open]) .rail-content{display:none}
+ .zone-right .mode-rail[open] .world-picker-label{font-size:0!important}
+ .zone-right .mode-rail[open] #world{font-size:11px!important;padding:3px!important;margin:2px 0!important}
+ .zone-right .mode-rail[open] #worldGallery{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:2px!important}
+ .zone-right .mode-rail[open] #worldGallery button{min-width:0!important;padding:2px!important;font-size:0!important}
+ .zone-right .mode-rail[open] #worldGallery .world-tile{height:24px!important;font-size:17px!important}
+ .zone-right .mode-rail[open] .world-description{display:none!important}
+ .zone-right .mode-rail[open] .rail-content>label:last-of-type{font-size:0!important}
+ .zone-right .mode-rail[open] #variant{font-size:10px!important;margin:2px 0!important;padding:4px!important}
+ .board-main>.power-cards{display:flex!important;align-items:center!important;gap:4px!important;padding:4px!important;margin:3px 0 0!important;border-radius:9px!important}
+ .board-main>.power-cards h2{display:none!important}
+ .board-main>.power-cards .power-grid{display:flex!important;gap:3px!important;flex:1!important;min-width:0}
+ .board-main>.power-cards .power-item{display:flex!important;gap:2px!important;align-items:center!important;padding:3px!important;min-width:0!important;flex:1!important}
+ .board-main>.power-cards .power-item strong{font-size:0!important}
+ .board-main>.power-cards .power-item:first-child strong::before{content:'🛡️';font-size:14px}
+ .board-main>.power-cards .power-item:nth-child(2) strong::before{content:'🚀';font-size:14px}
+ .board-main>.power-cards .power-item span{font-size:10px!important}
+ .board-main>.power-cards .power-action{width:36px!important;min-width:36px!important;height:28px!important;min-height:28px!important;overflow:hidden!important;font-size:0!important;padding:0!important;margin:0!important}
+ .board-main>.power-cards .power-action::before{content:'🚀';font-size:18px!important}
+ .zone-right .rail-content{padding-top:4px!important}
+ .zone-right .rail-section:not([open]){flex:0 0 auto!important}
+ .zone-right .rail-section[open] .rail-content,.zone-left .rail-section[open] .rail-content{max-height:min(44dvh,300px);overflow-y:auto;overscroll-behavior:contain}
+ .zone-right .rail-section[open] .world-gallery{max-height:none}
+ #tokens .token{transform:translate(-50%,-50%) translateZ(0)!important;transform-origin:center center!important}
+}
+@media(max-width:480px){
+ .four-side-frame .board-main{width:min(100%,calc(100dvh - 160px))!important}
+ .four-side-frame .board-main:has(.quick-board){width:min(100%,calc((100dvh - 160px)*2))!important}
+ .zone-left .player-prizes span{font-size:8px!important}
+ .zone-left .player .hero-art{width:23px!important;height:23px!important}
+}
+@media(max-width:850px){
+ .zone-left .player{flex-wrap:wrap!important}
+ .zone-left .player-prizes{width:100%!important;justify-content:flex-start!important}
+ .zone-left .player b{white-space:normal!important}
+ .zone-right .mode-rail[open] #worldGallery{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+/* V32: move frequent controls ABOVE the board, not over numbered cells. */
+.board-top-tools{display:none}
+@media(max-width:850px){
+ .board-top-tools{display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;margin:0 0 5px;padding:4px;background:#fff;border:1px solid #e9defc;border-radius:12px;box-shadow:0 2px 9px #7d5ad212}
+ .top-worlds,.top-actions{display:flex;align-items:center;gap:3px;min-width:0}
+ .top-worlds{flex:1;justify-content:space-evenly}
+ .board-top-tools button{border:1px solid transparent;border-radius:8px;background:#f4f0ff;min-width:0;min-height:30px;padding:3px 5px;font-size:17px;line-height:1;cursor:pointer;touch-action:manipulation}
+ .board-top-tools .top-worlds button.selected{border-color:#8e64f5;background:#e9dfff;box-shadow:inset 0 0 0 1px #a58af2}
+ .board-top-tools #topDice{background:#7950d7;color:white;font-size:23px;min-width:39px;min-height:34px}
+ .board-top-tools #topDice:disabled{opacity:.55}
+ .zone-right .side-dice,.zone-right .game-shortcuts{display:none!important}
+ .four-side-frame .board-main{width:min(100%,calc(100dvh - 210px))!important}
+ .four-side-frame .board-main:has(.quick-board){width:min(100%,calc((100dvh - 210px)*2))!important}
+ .zone-right .mode-rail{order:0}
+ .zone-right .mode-rail:not([open]){display:block}
+ .zone-right .mode-rail[open] #worldGallery{display:none!important}
+ .zone-right .mode-rail[open] #world{display:none!important}
+}
+@media(max-width:480px){
+ .board-top-tools{gap:2px;padding:3px}
+ .board-top-tools button{padding:3px;font-size:16px;min-height:28px}
+ .board-top-tools #topDice{min-width:35px}
+ .four-side-frame .board-main{width:min(100%,calc(100dvh - 195px))!important}
+ .four-side-frame .board-main:has(.quick-board){width:min(100%,calc((100dvh - 195px)*2))!important}
+}

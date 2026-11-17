@@ -92,9 +92,9 @@ function renderTokens(){
   const name=heroFiles[adventure.avatars[i]]||'bunny';
   const img=token.firstElementChild;const src=`/hero-${name}.png`;
   if(img.getAttribute('src')!==src){img.src=src;img.alt=name;}
-  const pt=square(p.pos);const offset=(i-(state.players.length-1)/2)*2.35;
+  const pt=square(p.pos);const offset=(i-(state.players.length-1)/2)*1.4;
   token.style.left=`${pt.x+offset}%`;
-  token.style.top=`${(pt.y+offset)*(adventure.goal===50&&state.mode!=='remote'?2:1)}%`;
+  token.style.top=`${pt.y*(adventure.goal===50&&state.mode!=='remote'?2:1)+offset}%`;
  });
  for(const token of layer.children)if(!active.has(token.id))token.remove();
 }
@@ -226,3 +226,19 @@ if(baseRollV24)new MutationObserver(syncBoardRollV24).observe(baseRollV24,{attri
 syncBoardRollV24();
 document.getElementById('newGame')?.addEventListener('click',()=>{if(state.rolling)return;if(state.mode==='remote'){alert('Remote room: start a new local game or create a new room.');return;}setup(state.mode,state.mode==='cpu'?2:+document.getElementById('count').value);});
 document.getElementById('fullView')?.addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch(e){console.warn('Fullscreen unavailable',e);}});
+
+// V31: Keep the mobile play screen compact on first load; all settings remain accessible.
+if(window.matchMedia('(max-width:850px)').matches){
+ document.querySelectorAll('.zone-right details, .zone-left details').forEach(el=>{el.open=false;});
+}
+
+// V32: board-top shortcuts reuse the existing game actions; no duplicate game logic.
+const topWorldButtons=document.querySelectorAll('[data-top-world]');
+const refreshTopWorld=()=>topWorldButtons.forEach(b=>{const active=b.dataset.topWorld===document.documentElement.dataset.world;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
+topWorldButtons.forEach(b=>b.addEventListener('click',()=>{document.querySelector(`[data-world-choice="${b.dataset.topWorld}"]`)?.click();refreshTopWorld();}));
+document.getElementById('topNewGame')?.addEventListener('click',()=>document.getElementById('newGame')?.click());
+document.getElementById('topFullView')?.addEventListener('click',()=>document.getElementById('fullView')?.click());
+const topDice=document.getElementById('topDice'),sideDice=document.getElementById('sideRoll');
+topDice?.addEventListener('click',()=>{if(sideDice&&!sideDice.disabled)sideDice.click();});
+if(topDice&&sideDice){const sync=()=>{topDice.disabled=sideDice.disabled;topDice.classList.toggle('rolling',!!state.rolling)};new MutationObserver(sync).observe(sideDice,{attributes:true,attributeFilter:['disabled']});sync();}
+refreshTopWorld();
